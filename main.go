@@ -206,3 +206,62 @@ func main() {
 	fmt.Println(string(v)) // string casted byte
 }
 */
+
+
+
+
+
+
+// THIRD PARTY LIBRARYYYYYYYYYYYYs !!!!!
+// 1. Semaphore
+// go の並列処理の数を制限する
+/* Usage 1 AcquireとReleaseでロックをかけたり解除したりする(ブロッキング)
+import(
+	"context"
+	"golang.org/x/sync/semaphore"
+)
+var s *semaphore.Weighted = semaphore.Weighted(制限したい数)
+
+func longProcess(ctx context.Context) {
+	if err := s.Acquire(ctx, 1); err != nil { // LOCKED
+		// エラー表示など
+		return
+	}
+	defer s.Release(1) // RELEASED
+	// Something
+}
+
+func main() {
+	ctx := context.TODO()
+	go longProcess(ctx)
+	go longProcess(ctx)
+	go longProcess(ctx)
+	// time.Sleep()など
+}
+*/
+
+/* Usage 2 s.TryAcquireで待機中の処理をキャンセルする
+import(
+	"context"
+	"golang.org/x/sync/semaphore"
+)
+var s *semaphore.Weighted = semaphore.Weighted(制限したい数)
+
+func longProcess(ctx context.Context) {
+	isAcquire := s.TryAcquire(1) // Lockが取れるかを試す
+	if !isAcquire { // 取れなかったらreturn
+		fmt.Println("Could not get LOCK")
+		return
+	}
+	defer s.Release(1) // 取れたらRELEASE
+	// Something
+}
+
+func main() {
+	ctx := context.TODO()
+	go longProcess(ctx)
+	go longProcess(ctx)
+	go longProcess(ctx)
+	// time.Sleep()など
+}
+*/
