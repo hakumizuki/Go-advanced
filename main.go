@@ -1,6 +1,10 @@
 package main
 import(
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	// "net/url"
+	// "bytes"
 
 	// アルファベット順にしておくといい
 	"./mylib"
@@ -13,7 +17,38 @@ import(
 func main() {
 	s := []int{1, 2, 3, 4, 5}
 	fmt.Println(mylib.Average(s))
+
+	// http
+resp, _ := http.Get("http://example.com") // 取ってくる
+defer resp.Body.Close()
+body, _ := ioutil.ReadAll(resp.Body)
+fmt.Println(string(body)) // bodyはbyteなので、stringでコンバートする
+/* http応用
+base, err := url.Parse("http://exammmmplll.c om") //存在してるかどうかの判別
+reference, _ := url.Parse("/test?a=1&b=2") // ?の後でGETを&でつなげて書いていく
+endpoint := base.ResolveReference(reference).String() // base + reference
+fmt.Println(base, err)
+fmt.Println(endpoint) // baseのurlの最終尾が意味のない文字列になっていても、ベースの部分を取り出すので問題ない
+
+req, _ := http.NewRequest("GET", endpoint, nil) // POSTの場合はnilがbyteになる
+/* POSTの場合
+req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer([]byte(ここにパスワード))) // http.NewRequestはdocを読もう
+
+req.Header.Add("If-None-Match", `W/"wndiown"`) // Headerを付け加える???
+q := req.URL.Query() // endpointのqueryがmap[string]stringで取得できる
+q.Add("c", "3&%") // programmaticにQueryを追加できる
+fmt.Println(q)
+fmt.Println(q.Encode()) // &は%26, %は%25になる
+req.URL.RawQuery = q.Encode() // Encode()してから入れ直す
+
+var client *http.Client = &http.Client{} // アクセスする時は、クライアントを作る必要がある
+resp, _ := client.Do(req) // client.Do()でリクエストを送り、レスポンスを受け取る
+body, _ := ioutil.ReadAll(resp.Body) // Bodyを読み込む
+fmt.Println(string(body))
+
+*/
 }
+
 
 // ディレクトリに移動したのち、$gofmt -w ファイル名 でインデントなどを修正してくれる
 
@@ -134,4 +169,40 @@ func main() {
 // ctx := context.TODO()は、コンテキストを後から実装する際に使える
 */
 
-/* ioutil file読み込み、書き込みなど ※ioはI/O input output 入出力のこと*/
+/* ioutil file読み込み、書き込みなど ※ioはI/O input output 入出力のこと */
+
+
+/* json Unmarshal&Marshal, Encode ☆json=json=json=json=json=json=json=json=json=json=json=json=json=json=json=json=json=json=json=json☆
+import(
+	"fmt"
+	"encoding/json"
+)
+
+type Person struct {
+	Name      string   `json:"name"`       // encodeするときのjsonの名前をここで指定できる
+	Age       int      `json:"age,string"` // encodeするときのデータ型をstringにできる(Unmarshal時には元のint型に戻る)
+	Nicknames []string `json:"-"`          // - にすると隠すことができる
+	// 補足 
+	// `json:"age,omitempty"` は空("", 0, []など)の場合に表示しない
+	// type T struct {}について、 T T `json:T,omitempty` にしたい時、Tではemptyの判別ができないため、*T型にする(nilで空)
+}
+
+// struct用にMarshalをカスタマイズする(encode結果をカスタマイズしたいときに使う)
+func (p Person) MarshalJSON() ([]byte, error) {
+	v, err := json.Marshal()
+}
+
+func main() {
+	b := []byte(`{"name":"Mike","age":"20","nicknames":["a","b","c"]}`) // `json配列`の形
+	// decodeする手順
+	var p Person // Personの変数を宣言
+	if err := json.Unmarshal(b, &p); err != nil { // Unmarshalがデータをdecodeして、直接&pにぶち込んでくれる 値の頭文字の大小は関係なくやってくれる
+		fmt.Println(err)
+	}
+	fmt.Println(p.Name, p.Age, p.Nicknames)
+
+	// 逆にencodeする手順
+	v, _ := json.Marshal(p) // encode
+	fmt.Println(string(v)) // string casted byte
+}
+*/
